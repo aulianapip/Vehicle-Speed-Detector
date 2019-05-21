@@ -1,7 +1,9 @@
 package com.roque.meza.navigationdrawerloginmysql;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.os.Bundle;
@@ -26,6 +28,9 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.roque.meza.navigationdrawerloginmysql.Utils.UserParcelable;
 
+import static com.roque.meza.navigationdrawerloginmysql.LoginActivity.TAG_ID;
+import static com.roque.meza.navigationdrawerloginmysql.LoginActivity.TAG_EMAIL;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     private int ident;
@@ -34,6 +39,10 @@ public class MainActivity extends AppCompatActivity
     private static final int TIME_INTERVAL = 2000;
     private long mBackPressed;
     Fragment fragment = null;
+    SharedPreferences sharedpreferences;
+    public static final String my_shared_preferences = "my_shared_preferences";
+    public static final String session_status = "session_status";
+
 
 
     @Override
@@ -45,6 +54,7 @@ public class MainActivity extends AppCompatActivity
 
         View header = ((NavigationView)findViewById(R.id.nav_view)).getHeaderView(0);
         ImageView photo = (ImageView)header.findViewById(R.id.image_menu);
+        sharedpreferences = getSharedPreferences(LoginActivity.my_shared_preferences, Context.MODE_PRIVATE);
 
         try{
             Bundle bundle = getIntent().getExtras();
@@ -186,7 +196,16 @@ public class MainActivity extends AppCompatActivity
                     .setCancelable(false)
                     .setPositiveButton("Ya", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
-                            MainActivity.this.finish();
+
+                            SharedPreferences.Editor editor = sharedpreferences.edit();
+                            editor.putBoolean(LoginActivity.session_status, false);
+                            editor.putString(TAG_ID, null);
+                            editor.putString(TAG_EMAIL, null);
+                            editor.commit();
+
+                            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                            finish();
+                            startActivity(intent);
                         }
                     })
                     .setNegativeButton("Tidak", new DialogInterface.OnClickListener() {

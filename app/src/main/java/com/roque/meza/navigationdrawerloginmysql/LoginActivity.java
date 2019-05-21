@@ -1,5 +1,7 @@
 package com.roque.meza.navigationdrawerloginmysql;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.drawable.AnimationDrawable;
 import android.support.v7.app.AppCompatActivity;
 import android.app.ProgressDialog;
@@ -42,6 +44,14 @@ public class LoginActivity extends AppCompatActivity {
     Animation frombottom, fromtop;
     TextView textTitle, textDesc;
 
+    public final static String TAG_EMAIL = "email";
+    public final static String TAG_ID = "id";
+    SharedPreferences sharedpreferences;
+    Boolean session = false;
+    String id, email1;
+    public static final String my_shared_preferences = "my_shared_preferences";
+    public static final String session_status = "session_status";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,6 +83,19 @@ public class LoginActivity extends AppCompatActivity {
         password.startAnimation(fromtop);
         login.startAnimation(frombottom);
         register.startAnimation(frombottom);
+
+        sharedpreferences = getSharedPreferences(my_shared_preferences, Context.MODE_PRIVATE);
+        session = sharedpreferences.getBoolean(session_status, false);
+        id = sharedpreferences.getString(TAG_ID, null);
+        email1 = sharedpreferences.getString(TAG_EMAIL, null);
+
+        if (session) {
+            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            intent.putExtra(TAG_ID, id);
+            intent.putExtra(TAG_EMAIL, email1);
+            finish();
+            startActivity(intent);
+        }
 
         register.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -120,6 +143,11 @@ public class LoginActivity extends AppCompatActivity {
 
                         Toast.makeText(getApplicationContext(),jsonObject.getString("success"),Toast.LENGTH_SHORT).show();
                         progress.dismiss();
+                        SharedPreferences.Editor editor = sharedpreferences.edit();
+                        editor.putBoolean(session_status, true);
+                        editor.putString(TAG_ID, id);
+                        editor.putString(TAG_EMAIL, email1);
+                        editor.commit();
 
                         Intent intent = new Intent(getApplicationContext(),MainActivity.class);
                         intent.putExtra("DATA_USER",userParcelable);
